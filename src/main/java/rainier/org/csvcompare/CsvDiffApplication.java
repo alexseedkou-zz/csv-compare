@@ -20,6 +20,12 @@ public class CsvDiffApplication {
 
   private static final Logger logger = Logger.getLogger(CsvDiffApplication.class);
 
+  private static int counter = 0;
+
+  private static final int maxTries = Config.getMaxRetries();
+
+  private static final int retryTimeSlot = Config.getRetryTimeSlot();
+
   public static void main(String[] args) {
     CsvDiffApplication object = new CsvDiffApplication();
     object.waitMethod();
@@ -41,14 +47,16 @@ public class CsvDiffApplication {
         logger.error(ex.getMessage(), ex.getCause());
         ex.printStackTrace();
       } catch (IOException ex) {
-        int[] counter = new int[] {0};
-        int maxTriex = 3;
-        retry(counter, maxTriex);
 
-        if (counter[0] == 3) {
+        retry();
+
+        if (counter == maxTries) {
           logger.error(ex.getMessage(), ex.getCause());
           ex.printStackTrace();
         }
+      } finally {
+        // need to reset counter to zero
+        counter = 0;
       }
     }
   }
@@ -77,20 +85,22 @@ public class CsvDiffApplication {
     }
   }
 
-  private void retry(int[] counter, int maxTries) {
-    if (counter[0] == maxTries) return;
+  private void retry() {
+    if (counter == maxTries) return;
 
     try {
-      Thread.sleep(5000);
+      Thread.sleep(retryTimeSlot);
       CsvFileConverter<Map<String, String>> csvFileConverter = new CsvFileConverterImp();
       HttpClient http = HttpClientBuilder.create().build();
       LoadFile loadFile = new LoadFileHttp(http);
       initCompare(CsvCompareImp.getInstance(), csvFileConverter, loadFile);
     } catch (IOException ex) {
-      counter[0]++;
+      counter++;
 
-      retry(counter, maxTries);
+      retry();
     } catch (InterruptedException ex) {
+      // reset counter because the interruption of the thread sleep
+      counter = 0;
       logger.error(ex.getMessage(), ex.getCause());
       ex.printStackTrace();
     }

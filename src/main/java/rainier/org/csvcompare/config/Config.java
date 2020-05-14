@@ -24,6 +24,10 @@ public class Config {
 
   private static String fileEndPoint;
 
+  private static int maxTries;
+
+  private static int retryTimeSlot;
+
   private static final Logger logger = Logger.getLogger(Config.class);
 
   static {
@@ -39,6 +43,8 @@ public class Config {
       Config.diffFileModification = props.getProperty("diff-file-modification");
       Config.idName = props.getProperty("id");
       Config.timeWindow = Integer.parseInt(props.getProperty("time-window"));
+      Config.maxTries = Integer.parseInt(props.getProperty("max-tries"));
+      Config.retryTimeSlot = Integer.parseInt(props.getProperty("retry-time-slot"));
       Config.fileEndPoint = props.getProperty("load-file-endpoint");
     } catch (FileNotFoundException ex) {
       logger.info(ex.getMessage());
@@ -75,6 +81,14 @@ public class Config {
 
   public static String getIdName() {
     return idName;
+  }
+
+  public static int getMaxRetries() {
+    return maxTries;
+  }
+
+  public static int getRetryTimeSlot() {
+    return retryTimeSlot;
   }
 
   public static String getFileEndPoint() {

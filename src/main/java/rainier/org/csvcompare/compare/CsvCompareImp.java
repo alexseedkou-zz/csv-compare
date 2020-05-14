@@ -25,7 +25,7 @@ public class CsvCompareImp implements CsvCompare<Map<String, String>> {
     csvWriter = new CsvWriter();
   }
 
-  public static CsvCompareImp getInstance() {
+  public static synchronized CsvCompareImp getInstance() {
     if (obj == null) obj = new CsvCompareImp();
     return obj;
   }
